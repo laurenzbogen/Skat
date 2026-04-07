@@ -1,3 +1,16 @@
 skat.laurenzbogen.com {
-    reverse_proxy grist:8484
+    # Dash/Plotly internal routes — must go to dashboard
+    handle /_dash-* {
+        reverse_proxy dashboard:8050
+    }
+
+    # Your dashboard prefix
+    handle /dashboard* {
+        reverse_proxy dashboard:8050
+    }
+
+    # Everything else → Grist
+    handle {
+        reverse_proxy grist:8484
+    }
 }
