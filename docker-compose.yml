@@ -7,7 +7,7 @@ services:
       - "8050:8050"
     environment:
       GRIST_API_TOKEN: "5b9e04ffc98c81022eeb74067c22ca065624c5b8"
-      GRIST_URL: "https:grist:8484"
+      GRIST_URL: "http://grist:8484"
       GRIST_DOC_ID: "mZg4zVZxcM8Ac7dSiZLn1A"
     depends_on:
       grist:
