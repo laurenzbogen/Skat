@@ -4,11 +4,11 @@ import dash_bootstrap_components as dbc
 from grist_api import GristDocAPI
 import pandas as pd
 import plotly.express as px
+import os
 
-SERVER = "http://grist:8484"
-DOC_ID = "5pvszDie7WfePKZT5K1GdM"  # full docId, not the urlId
-
-print("hello world")
+SERVER = os.environ["GRIST_URL"]
+DOC_ID = os.environ["GRIST_DOC_ID"]
+API_TOKEN = os.environ["GRIST_API_TOKEN"]
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 
@@ -46,7 +46,7 @@ app.layout = dbc.Container([
 @callback(Output('live-update-graph', 'figure'),
               Input('interval-component', 'n_intervals'))
 def update_graph_live(n):
-    api = GristDocAPI(DOC_ID, server=SERVER, api_key="f4f77041e535654e3208bc873b23bb36359a096c")
+    api = GristDocAPI(DOC_ID, server=SERVER, api_key=API_TOKEN)
     players = api.fetch_table('Players')
     players = pd.DataFrame.from_dict(players)
     players['Player'] = players['id']
