@@ -5,7 +5,7 @@ skat.laurenzbogen.com {
     }
 
     # Your dashboard prefix
-    handle /dashboard* {
+    handle /leaderboard* {
         reverse_proxy dashboard:8050
     }
 
