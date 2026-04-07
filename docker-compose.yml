@@ -1,0 +1,47 @@
+services:
+  dashboard:
+    build: ./dashboard
+    volumes:
+      - ./dashboard:/dashboard
+    ports:
+      - "8050:8050"
+    depends_on:
+      grist:
+        condition: service_healthy
+    restart: on-failure
+  grist:
+    image: gristlabs/grist
+    environment:
+      #GRIST_FORWARD_AUTH_HEADER: X-Forwarded-User
+      #GRIST_FORWARD_AUTH_LOGOUT_PATH: _oauth/logout
+      GRIST_SINGLE_ORG: grist  # alternatively, GRIST_ORG_IN_PATH: "true" for multi-team operation
+      GRIST_DEFAULT_EMAIL: myemail
+      APP_HOME_URL: https://localhost
+    expose:
+      - "8484"
+    volumes:
+      # You may want to put state somewhere other than /tmp :-)
+      - ./grist-data:/persist
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8484"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      grist:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
