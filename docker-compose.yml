@@ -2,7 +2,9 @@ services:
   dashboard:
     build: ./dashboard
     volumes:
+      - pip-cache:/usr/local/lib/python3.13/site-packages
       - ./dashboard:/dashboard
+    command: python3 chart.py
     ports:
       - "8050:8050"
     environment:
@@ -15,14 +17,16 @@ services:
     restart: on-failure
   grist:
     image: gristlabs/grist
+    user: "1000:1000"
     environment:
       #GRIST_FORWARD_AUTH_HEADER: X-Forwarded-User
       #GRIST_FORWARD_AUTH_LOGOUT_PATH: _oauth/logout
       GRIST_SINGLE_ORG: grist  # alternatively, GRIST_ORG_IN_PATH: "true" for multi-team operation
       GRIST_DEFAULT_EMAIL: myemail
-      APP_HOME_URL: https://localhost
-    expose:
-      - "8484"
+      # APP_HOME_URL: https://localhost
+      APP_HOME_URL: http://localhost:8484
+    ports:
+      - "8484:8484"
     volumes:
       # You may want to put state somewhere other than /tmp :-)
       - ./grist-data:/persist
@@ -49,3 +53,4 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  pip-cache:
