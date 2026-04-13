@@ -134,7 +134,6 @@ def update_graph_live(n):
     players = pd.DataFrame.from_dict(players)
     players['Player'] = players['id']
 
-
     records = []
     data = api.fetch_table('Rounds')
     df = pd.DataFrame.from_dict(data)
@@ -147,22 +146,33 @@ def update_graph_live(n):
             })
 
     df = pd.DataFrame.from_dict(records)
-    all_rounds = sorted(df['Round'].unique())
-
 
     pivot = df.pivot(index="Player", columns="Round", values="Points").fillna(0)
     cum = pivot.cumsum(axis=1)
-    ranks = cum
 
-    test = ranks.melt(ignore_index=False)
-    test = test.sort_values(['Round', 'value'], ascending=[False, False])
+    melted = cum.melt(ignore_index=False)
+    melted = melted.sort_values(['Round', 'value'], ascending=[False, False])
+    melted["id"] = melted.index
 
-    test["id"] = test.index
+    with_player = pd.merge(melted, players, on='id')
+    with_player["Runde"] = with_player["Round"]
+    with_player["Punkte"] = with_player["value"]
 
 
-    with_player = pd.merge(test, players, on='id')
+    # print()
+    all_names = players.sort_values('id')['Name'].tolist()
+    colors = px.colors.qualitative.Plotly  # or any palette you like
+    color_map = {name: colors[i % len(colors)] for i, name in enumerate(all_names)}
 
-    fig = px.line(with_player, x="Round", y="value", color="Name", markers=True, template="plotly_dark")
+
+    fig = px.line(
+        with_player,
+        x="Runde", y="Punkte",
+        color="Name",
+        markers=True,
+        template="plotly_dark",
+        color_discrete_map=color_map,
+    )
 
     return fig
 
